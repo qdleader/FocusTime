@@ -1,0 +1,8 @@
+node_modules
+.DS_Store
+release
+logs
+*.log
+dist-electron
+.idea
+.vscode
