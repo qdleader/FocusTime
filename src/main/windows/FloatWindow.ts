@@ -34,7 +34,6 @@ export class FloatWindow {
       resizable: false,
       skipTaskbar: true,
       show: false,
-      roundedCorners: false,
       focusable: false,
       fullscreenable: false,
       hasShadow: false,
