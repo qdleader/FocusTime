@@ -1,9 +1,7 @@
 import { ipcMain } from 'electron';
 import { TimerService } from '../services/TimerService';
-import { StorageService } from '../services/StorageService';
 
 const timerService = new TimerService();
-const storage = new StorageService();
 
 export function registerTimerHandlers(): void {
   timerService.onUpdate(payload => {
@@ -29,16 +27,6 @@ export function registerTimerHandlers(): void {
 
   ipcMain.handle('timer:reset', async () => {
     timerService.reset();
-    return { success: true };
-  });
-
-  ipcMain.handle('timer:configs', async () => ({
-    success: true,
-    configs: storage.getTimerConfigs(),
-  }));
-
-  ipcMain.handle('timer:saveConfigs', async (_, configs) => {
-    storage.saveTimerConfigs(configs);
     return { success: true };
   });
 }

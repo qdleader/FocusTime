@@ -11,8 +11,6 @@ const api = {
     pause: () => ipcRenderer.invoke('timer:pause'),
     resume: () => ipcRenderer.invoke('timer:resume'),
     reset: () => ipcRenderer.invoke('timer:reset'),
-    getConfigs: () => ipcRenderer.invoke('timer:configs'),
-    saveConfigs: (configs: unknown) => ipcRenderer.invoke('timer:saveConfigs', configs),
   },
   settings: {
     get: () => ipcRenderer.invoke('settings:get'),

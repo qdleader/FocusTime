@@ -7,12 +7,12 @@ const storage = new StorageService();
 export function registerSettingsHandlers(): void {
   ipcMain.handle('settings:get', async () => ({
     success: true,
-    settings: storage.getSettings(),
+    settings: await storage.getSettings(),
   }));
 
   ipcMain.handle('settings:update', async (_, payload) => ({
     success: true,
-    settings: storage.updateSettings(payload),
+    settings: await storage.updateSettings(payload),
   }));
 
   ipcMain.handle('settings:autoStart', async (_, enable: boolean) => {

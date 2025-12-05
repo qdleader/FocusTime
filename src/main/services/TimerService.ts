@@ -68,7 +68,9 @@ export class TimerService {
     this.currentSession.completed = true;
     this.currentSession.endTime = new Date().toISOString();
     this.currentSession.actualDuration = this.currentSession.plannedDuration;
-    this.storage.appendTimerSession(this.currentSession);
+    this.storage.appendTimerSession(this.currentSession).catch(err => {
+      console.error('Failed to save timer session:', err);
+    });
 
     NotifyService.send({
       title: this.currentSession.type === 'focus' ? '专注结束' : '休息结束',

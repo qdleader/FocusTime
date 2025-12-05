@@ -25,8 +25,8 @@ export class ShutdownService {
     this.bootstrap();
   }
 
-  private bootstrap(): void {
-    const persisted = this.storage.getShutdownTasks();
+  private async bootstrap(): Promise<void> {
+    const persisted = await this.storage.getShutdownTasks();
     persisted.forEach(task => {
       this.tasks.set(task.id, task);
       this.scheduleTask(task);
@@ -126,6 +126,8 @@ export class ShutdownService {
   }
 
   private persist(): void {
-    this.storage.saveShutdownTasks(this.getAll());
+    this.storage.saveShutdownTasks(this.getAll()).catch(err => {
+      console.error('Failed to persist shutdown tasks:', err);
+    });
   }
 }

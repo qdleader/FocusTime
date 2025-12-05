@@ -13,8 +13,6 @@ declare global {
         pause: () => Promise<{ success: boolean }>;
         resume: () => Promise<{ success: boolean }>;
         reset: () => Promise<{ success: boolean }>;
-        getConfigs: () => Promise<{ success: boolean; configs?: unknown[] }>;
-        saveConfigs: (configs: unknown) => Promise<{ success: boolean }>;
       };
       settings: {
         get: () => Promise<{ success: boolean; settings?: unknown }>;

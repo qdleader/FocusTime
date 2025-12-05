@@ -19,7 +19,7 @@
   "dependencies": {
     "chart.js": "^4.5.1",
     "dayjs": "^1.11.19",
-    "electron-store": "^8.2.0",
+    "electron-store": "^11.0.2",
     "element-plus": "^2.11.9",
     "howler": "^2.2.4",
     "node-schedule": "^2.1.1",

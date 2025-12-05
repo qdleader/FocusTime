@@ -13,11 +13,33 @@
       </nav>
     </header>
     <main class="app-main">
-      <RouterView />
+      <RouterView v-if="routerReady" />
+      <div v-else style="padding: 20px; text-align: center;">
+        <p>加载中...</p>
+      </div>
     </main>
     <footer class="app-footer">FocusTime © 2025</footer>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const routerReady = ref(false);
+
+onMounted(async () => {
+  try {
+    await router.isReady();
+    routerReady.value = true;
+    console.log('App mounted, current route:', router.currentRoute.value.path);
+  } catch (error) {
+    console.error('Router initialization error:', error);
+    routerReady.value = true; // 即使出错也显示内容
+  }
+});
+</script>
 
 <style scoped>
 .app-shell {

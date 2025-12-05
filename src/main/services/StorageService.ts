@@ -1,11 +1,10 @@
-import Store from 'electron-store';
+import type { default as Store } from 'electron-store';
 import type { ShutdownTask } from '@shared/types/shutdown';
 import type { AppSettings } from '@shared/types/common';
-import type { TimerConfig, TimerSession } from '@shared/types/timer';
+import type { TimerSession } from '@shared/types/timer';
 
 export interface StoreSchema {
   shutdownTasks: ShutdownTask[];
-  timerConfigs: TimerConfig[];
   timerSessions: TimerSession[];
   settings: AppSettings;
 }
@@ -31,78 +30,62 @@ const defaultSettings: AppSettings = {
   },
 };
 
-const defaultConfigs: TimerConfig[] = [
-  {
-    id: 'preset-pomodoro',
-    name: '番茄钟',
-    mode: 'pomodoro',
-    focusTime: 25 * 60,
-    breakTime: 5 * 60,
-    isLoop: true,
-    enableDisturbBlock: false,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'preset-deep',
-    name: '深度专注',
-    mode: 'deep',
-    focusTime: 45 * 60,
-    breakTime: 10 * 60,
-    isLoop: true,
-    enableDisturbBlock: false,
-    createdAt: new Date().toISOString(),
-  },
-];
+let store: Store<StoreSchema> | null = null;
 
-const store = new Store<StoreSchema>({
-  name: 'focustime-data',
-  defaults: {
-    shutdownTasks: [],
-    timerConfigs: defaultConfigs,
-    timerSessions: [],
-    settings: defaultSettings,
-  },
-});
+async function getStore(): Promise<Store<StoreSchema>> {
+  if (!store) {
+    const StoreModule = await import('electron-store');
+    const StoreClass = StoreModule.default;
+    store = new StoreClass<StoreSchema>({
+      name: 'focustime-data',
+      defaults: {
+        shutdownTasks: [],
+        timerSessions: [],
+        settings: defaultSettings,
+      },
+    });
+  }
+  return store;
+}
 
 export class StorageService {
-  getShutdownTasks(): ShutdownTask[] {
-    return store.get('shutdownTasks', []);
+  async getShutdownTasks(): Promise<ShutdownTask[]> {
+    const s = await getStore();
+    return s.get('shutdownTasks', []);
   }
 
-  saveShutdownTasks(tasks: ShutdownTask[]): void {
-    store.set('shutdownTasks', tasks);
+  async saveShutdownTasks(tasks: ShutdownTask[]): Promise<void> {
+    const s = await getStore();
+    s.set('shutdownTasks', tasks);
   }
 
-  getTimerConfigs(): TimerConfig[] {
-    return store.get('timerConfigs', defaultConfigs);
-  }
-
-  saveTimerConfigs(configs: TimerConfig[]): void {
-    store.set('timerConfigs', configs);
-  }
-
-  appendTimerSession(session: TimerSession): void {
-    const sessions = store.get('timerSessions', []);
+  async appendTimerSession(session: TimerSession): Promise<void> {
+    const s = await getStore();
+    const sessions = s.get('timerSessions', []);
     sessions.push(session);
-    store.set('timerSessions', sessions);
+    s.set('timerSessions', sessions);
   }
 
-  getSessions(): TimerSession[] {
-    return store.get('timerSessions', []);
+  async getSessions(): Promise<TimerSession[]> {
+    const s = await getStore();
+    return s.get('timerSessions', []);
   }
 
-  saveSessions(sessions: TimerSession[]): void {
-    store.set('timerSessions', sessions);
+  async saveSessions(sessions: TimerSession[]): Promise<void> {
+    const s = await getStore();
+    s.set('timerSessions', sessions);
   }
 
-  getSettings(): AppSettings {
-    return store.get('settings', defaultSettings);
+  async getSettings(): Promise<AppSettings> {
+    const s = await getStore();
+    return s.get('settings', defaultSettings);
   }
 
-  updateSettings(partial: Partial<AppSettings>): AppSettings {
-    const current = this.getSettings();
+  async updateSettings(partial: Partial<AppSettings>): Promise<AppSettings> {
+    const current = await this.getSettings();
     const merged = { ...current, ...partial } as AppSettings;
-    store.set('settings', merged);
+    const s = await getStore();
+    s.set('settings', merged);
     return merged;
   }
 }

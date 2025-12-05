@@ -3,7 +3,6 @@ import { ref, computed } from 'vue';
 import type { TimerConfig, TimerSession } from '@shared/types/timer';
 
 export const useTimerStore = defineStore('timer', () => {
-  const configs = ref<TimerConfig[]>([]);
   const currentConfig = ref<TimerConfig | null>(null);
   const isRunning = ref(false);
   const remaining = ref(0);
@@ -18,13 +17,6 @@ export const useTimerStore = defineStore('timer', () => {
       .padStart(2, '0');
     return `${minutes}:${seconds}`;
   });
-
-  async function loadConfigs() {
-    const response = await window.electronAPI.timer.getConfigs();
-    if (response.success) {
-      configs.value = response.configs;
-    }
-  }
 
   async function startTimer(config: TimerConfig) {
     await window.electronAPI.timer.start(config);
@@ -57,13 +49,11 @@ export const useTimerStore = defineStore('timer', () => {
   });
 
   return {
-    configs,
     currentConfig,
     isRunning,
     remaining,
     currentSession,
     formattedTime,
-    loadConfigs,
     startTimer,
     pauseTimer,
     resumeTimer,
