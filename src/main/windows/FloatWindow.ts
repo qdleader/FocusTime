@@ -9,21 +9,32 @@ export class FloatWindow {
   private window: BrowserWindow | null = null;
 
   async create(): Promise<BrowserWindow> {
-    if (this.window) return this.window;
+    if (this.window && !this.window.isDestroyed()) {
+      this.window.show();
+      this.window.setAlwaysOnTop(true);
+      return this.window;
+    }
 
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+    const floatSize = 120; // 圆形直径
+    const x = width - floatSize - 20;
+    const y = height - floatSize - 20;
+
+    console.log(`Creating float window at (${x}, ${y}), size: ${floatSize}x${floatSize}`);
 
     this.window = new BrowserWindow({
-      width: 220,
-      height: 120,
-      x: width - 260,
-      y: height - 180,
+      width: floatSize,
+      height: floatSize,
+      x,
+      y,
       frame: false,
       transparent: true,
       alwaysOnTop: true,
       resizable: false,
       skipTaskbar: true,
       show: false,
+      roundedCorners: false,
+      focusable: false,
       webPreferences: {
         preload: path.join(__dirname, '..', 'preload', 'index.cjs'),
         nodeIntegration: false,
@@ -39,12 +50,35 @@ export class FloatWindow {
       });
     }
 
-    this.window.once('ready-to-show', () => this.window?.show());
+    this.window.once('ready-to-show', () => {
+      console.log('Float window ready to show');
+      if (this.window && !this.window.isDestroyed()) {
+        this.window.show();
+        this.window.setAlwaysOnTop(true, 'screen-saver');
+      }
+    });
+
+    // 确保窗口显示
+    this.window.once('did-finish-load', () => {
+      console.log('Float window finished loading');
+      if (this.window && !this.window.isDestroyed()) {
+        this.window.show();
+        this.window.setAlwaysOnTop(true, 'screen-saver');
+      }
+    });
+
+    // 添加错误处理
+    this.window.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+      console.error('Float window failed to load:', errorCode, errorDescription);
+    });
+
     return this.window;
   }
 
   update(data: unknown): void {
-    this.window?.webContents.send('float:update', data);
+    if (this.window && !this.window.isDestroyed()) {
+      this.window.webContents.send('float:update', data);
+    }
   }
 
   destroy(): void {

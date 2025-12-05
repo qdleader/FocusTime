@@ -1,5 +1,7 @@
 <template>
-  <div class="app-shell">
+  <!-- 浮动窗口路由不显示主布局 -->
+  <RouterView v-if="routerReady && isFloatRoute" />
+  <div v-else-if="routerReady" class="app-shell">
     <header class="app-header">
       <div class="branding">
         <h1>FocusTime</h1>
@@ -13,21 +15,25 @@
       </nav>
     </header>
     <main class="app-main">
-      <RouterView v-if="routerReady" />
-      <div v-else style="padding: 20px; text-align: center;">
-        <p>加载中...</p>
-      </div>
+      <RouterView />
     </main>
     <footer class="app-footer">FocusTime © 2025</footer>
+  </div>
+  <div v-else style="padding: 20px; text-align: center;">
+    <p>加载中...</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const routerReady = ref(false);
+
+const isFloatRoute = computed(() => {
+  return router.currentRoute.value.path === '/float';
+});
 
 onMounted(async () => {
   try {
@@ -38,6 +44,11 @@ onMounted(async () => {
     console.error('Router initialization error:', error);
     routerReady.value = true; // 即使出错也显示内容
   }
+});
+
+// 监听路由变化
+watch(() => router.currentRoute.value.path, (path) => {
+  console.log('Route changed to:', path);
 });
 </script>
 
