@@ -2,8 +2,7 @@
   "name": "focustime",
   "version": "1.0.0",
   "description": "桌面端「定时关机 + 专注时间计时器」一体化应用需求文档（PRD）与技术方案   适用于 Vite + Electron + TypeScript 技术栈实现",
-  "type": "module",
-  "main": "dist-electron/main/index.js",
+  "main": "dist-electron/main/index.cjs",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build && electron-builder",

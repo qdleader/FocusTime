@@ -17,7 +17,7 @@ export class MainWindow {
       title: 'FocusTime',
       show: false,
       webPreferences: {
-        preload: path.join(__dirname, '..', 'preload', 'index.js'),
+        preload: path.join(__dirname, '..', 'preload', 'index.cjs'),
         nodeIntegration: false,
         contextIsolation: true,
       },

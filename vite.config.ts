@@ -14,8 +14,14 @@ export default defineConfig({
           build: {
             outDir: 'dist-electron/main',
             sourcemap: false,
+            target: 'node18',
             rollupOptions: {
               external: ['electron', 'node-schedule', 'electron-store'],
+              output: {
+                format: 'cjs',
+                entryFileNames: 'index.cjs',
+                interop: 'auto',
+              },
             },
           },
         },
@@ -29,6 +35,15 @@ export default defineConfig({
           build: {
             outDir: 'dist-electron/preload',
             sourcemap: false,
+            target: 'node18',
+            rollupOptions: {
+              external: ['electron'],
+              output: {
+                format: 'cjs',
+                entryFileNames: 'index.cjs',
+                interop: 'auto',
+              },
+            },
           },
         },
       },
