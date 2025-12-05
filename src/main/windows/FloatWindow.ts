@@ -11,7 +11,8 @@ export class FloatWindow {
   async create(): Promise<BrowserWindow> {
     if (this.window && !this.window.isDestroyed()) {
       this.window.show();
-      this.window.setAlwaysOnTop(true);
+      this.window.setAlwaysOnTop(true, 'screen-saver');
+      this.window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
       return this.window;
     }
 
@@ -35,12 +36,18 @@ export class FloatWindow {
       show: false,
       roundedCorners: false,
       focusable: false,
+      fullscreenable: false,
+      hasShadow: false,
+      backgroundColor: '#00000000',
       webPreferences: {
         preload: path.join(__dirname, '..', 'preload', 'index.cjs'),
         nodeIntegration: false,
         contextIsolation: true,
       },
     });
+
+    // 保证在全屏/多桌面也可见
+    this.window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
     if (process.env.VITE_DEV_SERVER_URL) {
       await this.window.loadURL(`${process.env.VITE_DEV_SERVER_URL}#/float`);
