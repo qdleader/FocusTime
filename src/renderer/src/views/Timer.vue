@@ -5,6 +5,32 @@
         <h2>专注计时器</h2>
       </header>
 
+      <!-- 时间设置（仅在未开始时显示） -->
+      <div v-if="!store.isRunning && !store.currentConfig" class="time-settings">
+        <div class="time-input-group">
+          <label>专注时间（分钟）</label>
+          <input
+            v-model.number="focusMinutes"
+            type="number"
+            min="1"
+            max="120"
+            class="time-input"
+            @change="validateTime"
+          />
+        </div>
+        <div class="time-input-group">
+          <label>休息时间（分钟）</label>
+          <input
+            v-model.number="breakMinutes"
+            type="number"
+            min="1"
+            max="60"
+            class="time-input"
+            @change="validateTime"
+          />
+        </div>
+      </div>
+
       <CircularTimer :progress="progress">
         <div class="timer-value">{{ displayTime }}</div>
         <p>{{ statusText }}</p>
@@ -25,36 +51,49 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useTimerStore } from '@/stores/timer';
 import CircularTimer from '@/components/CircularTimer.vue';
 import type { TimerConfig } from '@shared/types/timer';
 
 const store = useTimerStore();
 
-// 默认配置：25分钟专注 + 5分钟休息
-const defaultConfig: TimerConfig = {
-  id: 'default-pomodoro',
-  name: '番茄钟',
-  mode: 'pomodoro',
-  focusTime: 25 * 60, // 25分钟
-  breakTime: 5 * 60,  // 5分钟
-  isLoop: true,
-  enableDisturbBlock: false,
-  createdAt: new Date().toISOString(),
-};
+// 默认配置：30分钟专注 + 5分钟休息
+const focusMinutes = ref(30);
+const breakMinutes = ref(5);
+
+function validateTime() {
+  if (focusMinutes.value < 1) focusMinutes.value = 1;
+  if (focusMinutes.value > 120) focusMinutes.value = 120;
+  if (breakMinutes.value < 1) breakMinutes.value = 1;
+  if (breakMinutes.value > 60) breakMinutes.value = 60;
+}
+
+function createConfig(): TimerConfig {
+  return {
+    id: `custom-${Date.now()}`,
+    name: '自定义',
+    mode: 'custom',
+    focusTime: focusMinutes.value * 60,
+    breakTime: breakMinutes.value * 60,
+    isLoop: true,
+    enableDisturbBlock: false,
+    createdAt: new Date().toISOString(),
+  };
+}
 
 async function handleStart() {
-  await store.startTimer(defaultConfig);
+  const config = createConfig();
+  await store.startTimer(config);
 }
 
 const displayTime = computed(() => {
   if (store.currentConfig && store.remaining > 0) {
     return store.formattedTime;
   }
-  // 未开始时显示默认时间
-  const minutes = Math.floor(defaultConfig.focusTime / 60).toString().padStart(2, '0');
-  const seconds = (defaultConfig.focusTime % 60).toString().padStart(2, '0');
+  // 未开始时显示当前设置的时间
+  const minutes = Math.floor(focusMinutes.value).toString().padStart(2, '0');
+  const seconds = '00';
   return `${minutes}:${seconds}`;
 });
 
@@ -98,6 +137,42 @@ const progress = computed(() => {
 .timer-value {
   font-size: 48px;
   font-weight: 600;
+}
+
+.time-settings {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+}
+
+.time-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.time-input-group label {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.time-input {
+  width: 80px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.time-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .actions {
