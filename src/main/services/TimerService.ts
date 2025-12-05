@@ -26,15 +26,18 @@ export class TimerService {
     this.currentConfig = config;
     this.currentSession = this.createSession('focus');
     this.remaining = config.focusTime;
+    this.emit(); // 立即发送初始状态
     this.tick();
   }
 
   pause(): void {
     this.clearInterval();
+    this.emit(); // 发送暂停状态更新
   }
 
   resume(): void {
     if (!this.currentSession || this.remaining <= 0) return;
+    this.emit(); // 发送恢复状态更新
     this.tick();
   }
 

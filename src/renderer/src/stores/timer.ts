@@ -43,9 +43,17 @@ export const useTimerStore = defineStore('timer', () => {
     currentSession.value = null;
   }
 
-  window.electronAPI.on('timer:update', (payload: { remaining: number; session: TimerSession }) => {
+  window.electronAPI.on('timer:update', (payload: { remaining: number; session: TimerSession | null }) => {
     remaining.value = payload.remaining;
     currentSession.value = payload.session;
+    // 根据是否有 session 和 remaining 来判断是否在运行
+    if (payload.session && payload.remaining > 0) {
+      isRunning.value = true;
+    } else if (payload.remaining === 0 && !payload.session) {
+      // 重置状态
+      isRunning.value = false;
+      currentConfig.value = null;
+    }
   });
 
   return {

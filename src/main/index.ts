@@ -8,6 +8,10 @@ import { logger } from './utils/logger';
 
 let mainWindow: BrowserWindow | null = null;
 
+export function getMainWindow(): BrowserWindow | null {
+  return mainWindow;
+}
+
 const ensureSingleInstance = (): boolean => {
   const gotLock = app.requestSingleInstanceLock();
   if (!gotLock) {

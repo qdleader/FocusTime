@@ -1,13 +1,19 @@
 import { ipcMain } from 'electron';
 import { TimerService } from '../services/TimerService';
+import { getMainWindow } from '../index';
 
 const timerService = new TimerService();
 
+function sendUpdateToRenderer(payload: { remaining: number; session: any }): void {
+  const mainWindow = getMainWindow();
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('timer:update', payload);
+  }
+}
+
 export function registerTimerHandlers(): void {
   timerService.onUpdate(payload => {
-    if (payload.session) {
-      // bridge updates to renderer when needed
-    }
+    sendUpdateToRenderer(payload);
   });
 
   ipcMain.handle('timer:start', async (_, config) => {
